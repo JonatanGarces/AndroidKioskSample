@@ -1,5 +1,6 @@
 package com.curzar.androidkiosksample;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
@@ -58,8 +59,13 @@ public class DashboardActivity extends AppCompatActivity implements KioskInterfa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(R.layout.activity_dashboard);
+        getSupportActionBar().hide();
 
         am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -103,6 +109,9 @@ public class DashboardActivity extends AppCompatActivity implements KioskInterfa
                 startActivity(intent);
             }
         });
+
+
+
 
     }
 

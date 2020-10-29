@@ -6,4 +6,6 @@
     <string name="device_admin_password">Android@123</string>
     <string name="button_txt_enable_kiosk">Enable Kiosk Mode</string>
     <string name="button_txt_disable_kiosk">Disable Kiosk Mode</string>
+    <string name="titulo">Renta de Wifi</string>
+    <string name="titulo_descripcion">Acepta</string>
 </resources>

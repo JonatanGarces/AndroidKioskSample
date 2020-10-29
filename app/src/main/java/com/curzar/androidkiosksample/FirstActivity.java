@@ -35,9 +35,7 @@ public class FirstActivity extends AppCompatActivity {
         setContentView(R.layout.activity_first);
         //DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         //devicePolicyManager.clearDeviceOwnerApp(this.getPackageName());
-
         btn_start_websocket_server=(Button) findViewById(R.id.btn_start_websocket_server);
-
         btn_call_second_activity=(Button) findViewById(R.id.btn_call_second_activity);
         btn_call_second_activity.setOnClickListener(new View.OnClickListener() {
             @Override
