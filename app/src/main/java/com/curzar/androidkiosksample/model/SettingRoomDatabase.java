@@ -1,4 +1,4 @@
-package com.curzar.androidkiosksample.database;
+package com.curzar.androidkiosksample.model;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -7,25 +7,22 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.curzar.androidkiosksample.model.Setting;
-import com.curzar.androidkiosksample.model.SettingDao;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Database(entities = {Setting.class}, version = 1, exportSchema = false)
 
-abstract class SettingRoomDatabase extends RoomDatabase {
+public abstract class SettingRoomDatabase extends RoomDatabase {
 
-    abstract SettingDao settingDao();
+    public abstract SettingDao settingDao();
 
     // marking the instance as volatile to ensure atomic access to the variable
     private static volatile SettingRoomDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
-    static final ExecutorService databaseWriteExecutor =
+    public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-    static SettingRoomDatabase getDatabase(final Context context) {
+    public static SettingRoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (SettingRoomDatabase.class) {
                 if (INSTANCE == null) {

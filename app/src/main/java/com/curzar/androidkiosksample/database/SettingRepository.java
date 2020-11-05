@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 
 import com.curzar.androidkiosksample.model.Setting;
 import com.curzar.androidkiosksample.model.SettingDao;
+import com.curzar.androidkiosksample.model.SettingRoomDatabase;
 
 import java.util.List;
 

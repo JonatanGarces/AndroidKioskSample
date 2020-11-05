@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="btnSaveSettings" type="id" />
+    <item name="txtTypeofchange" type="id" />
+    <item name="txtViewTypeOfChange" type="id" />
+    <item name="editTextNumber" type="id" />
+    <item name="spinner_typeofchange" type="id" />
+    <item name="txtViewMoneda" type="id" />
+    <item name="constraintLayoutTypeOfChange" type="id" />
+    <item name="txtinputlayout_password" type="id" />
+    <item name="txtinputlayout_email" type="id" />
+    <item name="btn_call_second_activity" type="id" />
+    <item name="btn_start_websocket_server" type="id" />
+    <item name="txtPassword" type="id" />
+    <item name="constraintLayout" type="id" />
+</resources>

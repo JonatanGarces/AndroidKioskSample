@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.curzar.androidkiosksample">
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -11,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidKioskSample">
-        <activity android:name=".DashboardActivity">
+        <activity android:name=".Activity1Main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
@@ -19,10 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FirstActivity" />
-        <activity android:name=".SecondAcitivity" />
+        <activity android:name=".Activity2Settings" />
+        <activity android:name=".database.SecondActivity" />
         <activity android:name=".ThirdActivity" />
-
+        <activity android:name=".ble.DeviceControlActivity"/>
+        <activity android:name=".ble.DeviceScanActivity"/>
+        <service android:name=".ble.BluetoothLeService" android:enabled="true"/>
 
         <receiver
             android:name=".DeviceAdminReceiver"

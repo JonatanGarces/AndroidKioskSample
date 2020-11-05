@@ -1,15 +1,11 @@
 package com.curzar.androidkiosksample;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 //import android.support.annotation.NonNull;
 //import android.support.design.widget.BottomNavigationView;
@@ -28,7 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class DashboardActivity extends AppCompatActivity implements KioskInterface {
+public class Activity1Main extends AppCompatActivity implements KioskInterface {
 
     private TextView mTextMessage;
     private Button btn_call_first_activity;
@@ -64,7 +60,7 @@ public class DashboardActivity extends AppCompatActivity implements KioskInterfa
 
 
 
-        setContentView(R.layout.activity_dashboard);
+        setContentView(R.layout.activity_1main);
         getSupportActionBar().hide();
 
         am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
@@ -105,7 +101,7 @@ public class DashboardActivity extends AppCompatActivity implements KioskInterfa
         btn_call_first_activity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(DashboardActivity.this,FirstActivity.class);
+                Intent intent=new Intent(Activity1Main.this, Activity2Settings.class);
                 startActivity(intent);
             }
         });
@@ -122,7 +118,7 @@ public class DashboardActivity extends AppCompatActivity implements KioskInterfa
 
 
     public void askAdminPassword(){
-        final Dialog dialog = new Dialog(DashboardActivity.this);
+        final Dialog dialog = new Dialog(Activity1Main.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
@@ -146,7 +142,7 @@ public class DashboardActivity extends AppCompatActivity implements KioskInterfa
                     }
                     else
                     {
-                        Toast.makeText(DashboardActivity.this, "Please enter valid password.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Activity1Main.this, "Please enter valid password.", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -170,7 +166,7 @@ public class DashboardActivity extends AppCompatActivity implements KioskInterfa
     private void disableKioskMode(DevicePolicyManager devicePolicyManager,ActivityManager activityManager)
     {
         if(devicePolicyManager!=null && activityManager!=null){
-            ComponentName mAdminComponentName = DeviceAdminReceiver.getComponentName(DashboardActivity.this);
+            ComponentName mAdminComponentName = DeviceAdminReceiver.getComponentName(Activity1Main.this);
             devicePolicyManager.clearPackagePersistentPreferredActivities(mAdminComponentName, getPackageName());
             devicePolicyManager.clearDeviceOwnerApp(getApplication().getPackageName());
             if(activityManager.getLockTaskModeState()!=ActivityManager.LOCK_TASK_MODE_NONE)

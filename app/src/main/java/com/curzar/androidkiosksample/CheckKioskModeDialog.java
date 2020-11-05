@@ -1,6 +1,5 @@
 package com.curzar.androidkiosksample;
 
-import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -162,7 +161,7 @@ public class CheckKioskModeDialog extends DialogFragment
             // on reboot
             mDevicePolicyManager.addPersistentPreferredActivity(
                     mAdminComponentName, intentFilter, new ComponentName(
-                            getActivity().getPackageName(), DashboardActivity.class.getName()));
+                            getActivity().getPackageName(), Activity1Main.class.getName()));
         } else {
             mDevicePolicyManager.clearPackagePersistentPreferredActivities(
                     mAdminComponentName, getActivity().getPackageName());

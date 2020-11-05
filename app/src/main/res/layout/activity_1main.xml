@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.curzar.androidkiosksample.DashboardActivity">
+    tools:context="com.curzar.androidkiosksample.Activity1Main">
 
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -36,7 +36,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="Call First Activity"
+        android:text="Settings"
         app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

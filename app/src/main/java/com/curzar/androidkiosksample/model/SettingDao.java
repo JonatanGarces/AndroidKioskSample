@@ -22,8 +22,8 @@ public interface SettingDao {
     @Query("SELECT * FROM setting ORDER BY name ASC")
     LiveData<List<Setting>> getAlphabetizedSettings();
 
-    @Insert
-    void insert(Setting setting);
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insert(Setting... setting);
 
     @Update
     void update(Setting setting);

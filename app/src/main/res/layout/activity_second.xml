@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.curzar.androidkiosksample.Activity2Settings">
+
+
+    <Button
+        android:id="@+id/btn_call_third_activity"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:elevation="5dp"
+        android:text="Call Third Activity"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="391dp"
+        tools:layout_editor_absoluteY="247dp">
+
+        <CheckBox
+            android:id="@+id/checkbox_led_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:checked="false"
+            android:scaleX="1.7"
+            android:scaleY="1.7"
+            android:text="Toggle LED"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="RX:"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/read_buffer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.9"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="&lt;Read Buffer>" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Status:"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/bluetooth_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.9"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="&lt;Bluetooth Status>" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/scan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bluetooth ON" />
+
+        <Button
+            android:id="@+id/off"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bluetooth OFF" />
+
+        <Button
+            android:id="@+id/paired_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show paired Devices" />
+
+        <Button
+            android:id="@+id/discover"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Discover New Devices" />
+
+        <ListView
+            android:id="@+id/devices_list_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:choiceMode="singleChoice" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
