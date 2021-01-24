@@ -13,13 +13,14 @@ import java.util.List;
 public class SettingRepository {
     private SettingDao mSettingDao;
     private LiveData<List<Setting>> mAllSettings;
+    private Setting setting;
 
     SettingRepository(Application application){
         SettingRoomDatabase db = SettingRoomDatabase.getDatabase(application);
         mSettingDao = db.settingDao();
-        mAllSettings = mSettingDao.getAlphabetizedSettings();
     }
     LiveData<List<Setting>> getAllSettings() {
+        mAllSettings = mSettingDao.getAlphabetizedSettings();
         return mAllSettings;
     }
     void insert(Setting setting) {
@@ -28,7 +29,24 @@ public class SettingRepository {
         });
     }
 
+    public void updateByName(String name,String value) {
+        SettingRoomDatabase.databaseWriteExecutor.execute(() -> {
+            mSettingDao.updateByName(name,value);
+        });
+    }
+
+    Setting loadSettingByName(String name) {
+        setting = mSettingDao.loadSettingByName(name);
+        return setting;
+    }
+
     public void update(Setting row) {
+        SettingRoomDatabase.databaseWriteExecutor.execute(() -> {
+            mSettingDao.update(row);
+        });
+    }
+
+    public void updatebyname(Setting row) {
         SettingRoomDatabase.databaseWriteExecutor.execute(() -> {
             mSettingDao.update(row);
         });

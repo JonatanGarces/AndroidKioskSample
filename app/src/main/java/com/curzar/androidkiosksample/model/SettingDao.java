@@ -34,6 +34,9 @@ public interface SettingDao {
     @Query("SELECT * FROM setting WHERE id = :id")
     Setting loadSettingById(int id);
 
+    @Query("UPDATE setting  set value =:value WHERE name = :name")
+    void updateByName(String name,String value);
+
     @Query("SELECT * FROM setting WHERE name = :name")
     Setting loadSettingByName(String name);
 

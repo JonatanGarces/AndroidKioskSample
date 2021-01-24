@@ -53,16 +53,23 @@ public abstract class SettingRoomDatabase extends RoomDatabase {
 
                 Setting setting = new Setting("email","");
                 dao.insert(setting);
-                setting = new Setting("email","");
-                dao.insert(setting);
                 setting = new Setting("password","");
                 dao.insert(setting);
                 setting = new Setting("currency","");
                 dao.insert(setting);
                 setting = new Setting("device","");
                 dao.insert(setting);
+                setting = new Setting("characteristic","");
+                dao.insert(setting);
+                setting = new Setting("service","");
+                dao.insert(setting);
                 setting = new Setting("timeperunitofcurrency","");
                 dao.insert(setting);
+                setting = new Setting("devicename","");
+                dao.insert(setting);
+                setting = new Setting("devicemac","");
+                dao.insert(setting);
+
             });
         }
     };

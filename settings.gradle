@@ -1,2 +1,3 @@
+include ':androidBluetoothSerial'
 include ':app'
 rootProject.name = "AndroidKioskSample"

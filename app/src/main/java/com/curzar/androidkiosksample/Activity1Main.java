@@ -6,11 +6,13 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 //import android.support.annotation.NonNull;
 //import android.support.design.widget.BottomNavigationView;
 //import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -21,64 +23,89 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
+import com.curzar.androidkiosksample.database.SettingViewModel;
+import com.curzar.androidkiosksample.model.Setting;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class Activity1Main extends AppCompatActivity implements KioskInterface {
 
     private TextView mTextMessage;
-    private Button btn_call_first_activity;
-    private Button btnkioskmode;
+    private Button btn_call_first_activity,kioskmodeButton,zeroButton,connectButton;
+    private EditText editTextNumber4;
+    private Activity1MainViewModel viewModel;
+    private SettingViewModel mSettingViewModel;
+    private String device_name = "";
+    private String device_mac = "";
+    private Setting setting;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
-                    return true;
-                case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
-            }
-            return false;
-        }
-    };
     private DevicePolicyManager mDevicePolicyManager;
     private ActivityManager am;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+        mSettingViewModel.getAllSettings().observe(this,settings ->{
+            for (Setting setting : settings){
+                switch (setting.getName()){
+                    case   "devicename":
+                        device_name =setting.getValue();
+                        break;
+                    case   "devicemac":
+                        device_mac =setting.getValue();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+
+       // Log.d("device_bl",device_name);
+       // Log.d("device_bl",device_mac);
+
+
+        if (!viewModel.setupViewModel(device_name,device_mac)) {
+            finish();
+            return;
+        }
+
+
+
+    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
-
-
         setContentView(R.layout.activity_1main);
         getSupportActionBar().hide();
 
-        am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        viewModel = ViewModelProviders.of(this).get(Activity1MainViewModel.class);
+        mSettingViewModel = ViewModelProviders.of(this).get(SettingViewModel.class);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
-        btnkioskmode=findViewById(R.id.btnkioskmode);
+        am                      = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        mDevicePolicyManager    = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        mTextMessage            = (TextView) findViewById(R.id.message);
+        kioskmodeButton         = findViewById(R.id.btnkioskmode);
+        zeroButton              = findViewById(R.id.communicate_zero);
+        connectButton              = findViewById(R.id.button);
 
         if(am.getLockTaskModeState() == ActivityManager.LOCK_TASK_MODE_NONE)
         {
-            btnkioskmode.setText(R.string.button_txt_enable_kiosk);
+            kioskmodeButton.setText(R.string.button_txt_enable_kiosk);
         }
         else
         {
-            btnkioskmode.setText(R.string.button_txt_disable_kiosk);
+            kioskmodeButton.setText(R.string.button_txt_disable_kiosk);
         }
 
-        btnkioskmode.setOnClickListener(new View.OnClickListener() {
+        kioskmodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
@@ -91,12 +118,9 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
                     CheckKioskModeDialog dialog=new CheckKioskModeDialog();
                     dialog.show(getFragmentManager(),"KIOSK_MODE_DIALOG");
                 }
-
             }
         });
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         btn_call_first_activity=(Button) findViewById(R.id.btn_call_first_activity);
         btn_call_first_activity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,15 +131,57 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
         });
 
 
+        viewModel.getConnectionStatus().observe(this, this::onConnectionStatus);
+        viewModel.getDeviceName().observe(this, name -> setTitle(getString(R.string.device_name_format, name)));
+        viewModel.getMessages().observe(this, message -> {
+            if (TextUtils.isEmpty(message)) {
+                message = getString(R.string.no_messages);
+            }
+            // messagesView.setText(message);
+        });
+        viewModel.getMessage().observe(this, message -> {
+            if (TextUtils.isEmpty(message)) {
+                editTextNumber4.setText(message);
+            }
+        });
+
+    }
 
 
+    private void onConnectionStatus(CommunicateViewModel.ConnectionStatus connectionStatus) {
+        switch (connectionStatus) {
+            case CONNECTED:
+                //connectionText.setText(R.string.status_connected);
+                //messageBox.setEnabled(true);
+                //sendButton.setEnabled(true);
+                //connectButton.setEnabled(true);
+                //connectButton.setText(R.string.disconnect);
+                //connectButton.setOnClickListener(v -> viewModel.disconnect());
+                break;
+
+            case CONNECTING:
+                //connectionText.setText(R.string.status_connecting);
+                //messageBox.setEnabled(false);
+                //sendButton.setEnabled(false);
+                //connectButton.setEnabled(false);
+                //connectButton.setText(R.string.connect);
+                break;
+
+            case DISCONNECTED:
+                //connectionText.setText(R.string.status_disconnected);
+                //messageBox.setEnabled(false);
+                //sendButton.setEnabled(false);
+                //connectButton.setEnabled(true);
+                //connectButton.setText(R.string.connect);
+                connectButton.setOnClickListener(v -> viewModel.connect());
+                break;
+        }
     }
 
     @Override
     public void KioskSetupFinish() {
-        btnkioskmode.setText("Disable Kiosk MODE");
+        kioskmodeButton.setText("Disable Kiosk MODE");
     }
-
 
     public void askAdminPassword(){
         final Dialog dialog = new Dialog(Activity1Main.this);
@@ -157,8 +223,6 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
             }
         });
 
-
-
         dialog.show();
 
     }
@@ -172,7 +236,7 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
             if(activityManager.getLockTaskModeState()!=ActivityManager.LOCK_TASK_MODE_NONE)
             {
                 this.stopLockTask();
-                btnkioskmode.setText(R.string.button_txt_enable_kiosk);
+                kioskmodeButton.setText(R.string.button_txt_enable_kiosk);
 
             }
 
@@ -180,7 +244,42 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
 
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+    
 
 }
+
+ /* private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    mTextMessage.setText(R.string.title_home);
+                    return true;
+                case R.id.navigation_dashboard:
+                    mTextMessage.setText(R.string.title_dashboard);
+                    return true;
+                case R.id.navigation_notifications:
+                    mTextMessage.setText(R.string.title_notifications);
+                    return true;
+            }
+            return false;
+        }
+    };*/

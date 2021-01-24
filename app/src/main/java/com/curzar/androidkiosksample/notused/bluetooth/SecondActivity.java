@@ -1,4 +1,4 @@
-package com.curzar.androidkiosksample.database;
+package com.curzar.androidkiosksample.notused.bluetooth;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,7 +29,6 @@ import androidx.core.content.ContextCompat;
 
 import com.curzar.androidkiosksample.R;
 import com.curzar.androidkiosksample.ThirdActivity;
-import com.curzar.androidkiosksample.bluetooth.ConnectedThread;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

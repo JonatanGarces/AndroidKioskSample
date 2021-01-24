@@ -26,10 +26,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activity2Settings" />
-        <activity android:name=".database.SecondActivity" />
+        <activity android:name=".notused.bluetooth.SecondActivity" />
         <activity android:name=".ThirdActivity" />
-        <activity android:name=".ble.DeviceControlActivity"/>
-        <activity android:name=".ble.DeviceScanActivity"/>
+        <activity android:name=".Activity4BleServices"/>
+        <activity android:name=".Activity3BleScanDevices"/>
         <service android:name=".ble.BluetoothLeService" android:enabled="true"/>
 
         <receiver
@@ -47,7 +47,8 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
+        <activity android:name=".CommunicateActivity" />
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>

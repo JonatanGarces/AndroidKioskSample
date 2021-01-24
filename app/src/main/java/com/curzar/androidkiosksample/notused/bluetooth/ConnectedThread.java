@@ -1,10 +1,8 @@
-package com.curzar.androidkiosksample.bluetooth;
+package com.curzar.androidkiosksample.notused.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.os.SystemClock;
-
-import com.curzar.androidkiosksample.database.SecondActivity;
 
 import java.io.IOException;
 import java.io.InputStream;

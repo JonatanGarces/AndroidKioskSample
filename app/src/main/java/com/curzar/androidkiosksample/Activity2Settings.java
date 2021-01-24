@@ -1,104 +1,159 @@
 package com.curzar.androidkiosksample;
 
 import android.content.Intent;
-//import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.curzar.androidkiosksample.ble.DeviceControlActivity;
-import com.curzar.androidkiosksample.ble.DeviceScanActivity;
-import com.koushikdutta.async.AsyncServer;
-import com.koushikdutta.async.callback.CompletedCallback;
-import com.koushikdutta.async.http.WebSocket;
-import com.koushikdutta.async.http.server.AsyncHttpServer;
-import com.koushikdutta.async.http.server.AsyncHttpServerRequest;
+import com.curzar.androidkiosksample.database.SettingViewModel;
+import com.curzar.androidkiosksample.model.Setting;
 
-import java.util.ArrayList;
+import androidx.lifecycle.ViewModelProvider;
+
 import java.util.List;
+import java.util.Map;
 
 public class Activity2Settings extends AppCompatActivity {
-
+    public static final String EXTRA_REPLY = "com.curzar.androidkiosksample.wordlistsql.REPLY";
+    private EditText mEditSettingView;
+    private EditText  txtemail;
+    private EditText  txtpassword;
+    private Spinner  spincurrency;
+    private EditText  txtdevice;
+    private EditText  txtcharacteristic;
+    private EditText  txtservice;
+    private TextView txtviewcurrency;
+    private EditText  txttimeperunitofcurrency;
+    private Button btnSaveSettings;
     private Button btn_call_second_activity;
-    private Button btn_start_websocket_server;
-    AsyncHttpServer httpServer = new AsyncHttpServer();
-    List<WebSocket> _sockets = new ArrayList<WebSocket>();
+    List<Setting> settings1 = null;
+    public static final int NEW_WORD_ACTIVITY_REQUEST_CODE = 1;
+    private SettingViewModel mSettingViewModel;
+    Map<String, String> inputs;
+
+    /*public void onActivityResult(int requestCode,int resultCode,Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode == NEW_WORD_ACTIVITY_REQUEST_CODE && resultCode ==RESULT_OK){
+            Setting setting = new Setting(data.getStringExtra(Activity2Settings.EXTRA_REPLAY));
+            mSettingViewModel.update(setting);
+        }else{
+            Toast.makeText(
+                    getApplicationContext(),
+                    "No se guardo",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+     */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public  void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_2settings);
+        btn_call_second_activity = (Button) findViewById(R.id.btn_call_second_activity);
+        btnSaveSettings = (Button) findViewById(R.id.btnSaveSettings);
+        txtemail=(EditText ) findViewById(R.id.txtemail);
+        txtpassword=(EditText ) findViewById(R.id.txtPassword);
+        txttimeperunitofcurrency=(EditText) findViewById(R.id.txttimeperunitofcurrency);
+        spincurrency=(Spinner) findViewById(R.id.spincurrency);
+        txtcharacteristic=(EditText) findViewById(R.id.txt_characteristic);
+        txtdevice=(EditText) findViewById(R.id.txt_device);
+        txtservice=(EditText) findViewById(R.id.txt_service);
+        txtviewcurrency= (TextView) findViewById(R.id.txtviewcurrency);
 
+        mSettingViewModel= new ViewModelProvider(this).get(SettingViewModel.class);
+        //mSettingViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(SettingViewModel.class);
 
-        Spinner spinner = (Spinner) findViewById(R.id.spinner_typeofchange);
-// Create an ArrayAdapter using the string array and a default spinner layout
+        Spinner spinner = (Spinner) findViewById(R.id.spincurrency);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.planets_array, android.R.layout.simple_spinner_item);
-// Specify the layout to use when the list of choices appears
+                R.array.currency_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-// Apply the adapter to the spinner
+        // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
 
 
+        mSettingViewModel.getAllSettings().observe(this,settings ->{
+            settings1 = settings;
+
+                for (Setting setting : settings){
+                    switch (setting.getName()){
+                        case   "email":
+                            txtemail.setText(setting.getValue());
+                            break;
+                        case   "password":
+                            txtpassword.setText(setting.getValue());
+                            break;
+                        case   "timeperunitofcurrency":
+                            txttimeperunitofcurrency.setText(setting.getValue());
+                            break;
+                        case   "currency":
+                            spincurrency.setSelection(adapter.getPosition(setting.getValue()));
+                            txtviewcurrency.setText(setting.getValue());
+                            break;
+                        case   "device":
+                            txtdevice.setText(setting.getValue());
+                            break;
+                        case   "service":
+                            txtservice.setText(setting.getValue());
+                            break;
+                        case   "characteristic":
+                            txtcharacteristic.setText(setting.getValue());
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+
+        });
+        // Create an ArrayAdapter using the string array and a default spinner layout
+
         //DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         //devicePolicyManager.clearDeviceOwnerApp(this.getPackageName());
-        btn_start_websocket_server=(Button) findViewById(R.id.btn_start_websocket_server);
-        btn_call_second_activity=(Button) findViewById(R.id.btn_call_second_activity);
+
+        btnSaveSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+                mSettingViewModel.updateByName("email",txtemail.getText().toString());
+                mSettingViewModel.updateByName("password",txtpassword.getText().toString());
+                mSettingViewModel.updateByName("currency",spinner.getSelectedItem().toString());
+                mSettingViewModel.updateByName("device",txtdevice.getText().toString());
+                mSettingViewModel.updateByName("characteristic",txtcharacteristic.getText().toString());
+                mSettingViewModel.updateByName("service",txtservice.getText().toString());
+                mSettingViewModel.updateByName("timeperunitofcurrency",txttimeperunitofcurrency.getText().toString());
+
+
+                // Intent replyIntent = new Intent();
+               // if (TextUtils.isEmpty(txtminpertypeofchange.getText())) {
+                 //   setResult(RESULT_CANCELED, replyIntent);
+                //} else {
+                //    String word = txtminpertypeofchange.getText().toString();
+                //    replyIntent.putExtra(EXTRA_REPLY, word);
+               //     setResult(RESULT_OK, replyIntent);
+               // }
+                //finish();
+            }
+        });
+
         btn_call_second_activity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(Activity2Settings.this, DeviceScanActivity.class);
+                Intent intent=new Intent(Activity2Settings.this, MainActivity.class);
                 startActivity(intent);
             }
         });
-
-
-        btn_start_websocket_server.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                httpServer.listen(AsyncServer.getDefault(), 1414);
-                Log.d("titulo", Utils.getIPAddress(true));
-
-               //// Utils.getMACAddress("wlan0");
-                //Utils.getMACAddress("eth0");
-               // Utils.getIPAddress(false); // IPv6
-
-                httpServer.websocket("/live", new AsyncHttpServer.WebSocketRequestCallback() {
-                    @Override
-                    public void onConnected(final WebSocket webSocket, AsyncHttpServerRequest request) {
-                        _sockets.add(webSocket);
-                        //Use this to clean up any references to your websocket
-                        webSocket.setClosedCallback(new CompletedCallback() {
-                            @Override
-                            public void onCompleted(Exception ex) {
-                                try {
-                                    if (ex != null)
-                                        Log.e("WebSocket", "An error occurred", ex);
-                                } finally {
-                                    _sockets.remove(webSocket);
-                                }
-                            }
-                        });
-
-                        webSocket.setStringCallback(new WebSocket.StringCallback() {
-                            @Override
-                            public void onStringAvailable(String s) {
-                                if ("Hello Server".equals(s))
-                                    webSocket.send("Welcome Client!");
-                            }
-                        });
-
-                    }
-                });
-
-
-            }
-        });
     }
+
+
+
 }

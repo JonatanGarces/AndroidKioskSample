@@ -1,4 +1,4 @@
-package com.curzar.androidkiosksample;
+package com.curzar.androidkiosksample.notused;
 
 import java.io.*;
 import java.net.*;
