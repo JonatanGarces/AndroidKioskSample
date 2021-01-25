@@ -2,6 +2,7 @@ package com.curzar.androidkiosksample;
 
 import android.app.Application;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -28,7 +29,7 @@ public class Activity1MainViewModel  extends AndroidViewModel {
     @Nullable
     private SimpleBluetoothDeviceInterface deviceInterface;
     private MutableLiveData<String> messagesData = new MutableLiveData<>();
-    private MutableLiveData<CommunicateViewModel.ConnectionStatus> connectionStatusData = new MutableLiveData<>();
+    private MutableLiveData<ConnectionStatus> connectionStatusData = new MutableLiveData<>();
     private MutableLiveData<String> deviceNameData = new MutableLiveData<>();
     private MutableLiveData<String> messageData = new MutableLiveData<>();
     private StringBuilder messages = new StringBuilder();
@@ -54,7 +55,7 @@ public class Activity1MainViewModel  extends AndroidViewModel {
             this.deviceName = deviceName;
             this.mac = mac;
             deviceNameData.postValue(deviceName);
-            connectionStatusData.postValue(CommunicateViewModel.ConnectionStatus.DISCONNECTED);
+            connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
         }
         return true;
     }
@@ -67,10 +68,10 @@ public class Activity1MainViewModel  extends AndroidViewModel {
                     .subscribe(device -> onConnected(device.toSimpleDeviceInterface()), t -> {
                         toast(R.string.connection_failed);
                         connectionAttemptedOrMade = false;
-                        connectionStatusData.postValue(CommunicateViewModel.ConnectionStatus.DISCONNECTED);
+                        connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
                     }));
             connectionAttemptedOrMade = true;
-            connectionStatusData.postValue(CommunicateViewModel.ConnectionStatus.CONNECTING);
+            connectionStatusData.postValue(ConnectionStatus.CONNECTING);
         }
     }
 
@@ -79,21 +80,21 @@ public class Activity1MainViewModel  extends AndroidViewModel {
             connectionAttemptedOrMade = false;
             bluetoothManager.closeDevice(deviceInterface);
             deviceInterface = null;
-            connectionStatusData.postValue(CommunicateViewModel.ConnectionStatus.DISCONNECTED);
+            connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
         }
     }
 
     private void onConnected(SimpleBluetoothDeviceInterface deviceInterface) {
         this.deviceInterface = deviceInterface;
         if (this.deviceInterface != null) {
-            connectionStatusData.postValue(CommunicateViewModel.ConnectionStatus.CONNECTED);
+            connectionStatusData.postValue(ConnectionStatus.CONNECTED);
             this.deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, t -> toast(R.string.message_send_error));
             toast(R.string.connected);
             messages = new StringBuilder();
             messagesData.postValue(messages.toString());
         } else {
             toast(R.string.connection_failed);
-            connectionStatusData.postValue(CommunicateViewModel.ConnectionStatus.DISCONNECTED);
+            connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
         }
     }
 
@@ -101,6 +102,7 @@ public class Activity1MainViewModel  extends AndroidViewModel {
         if(isInt(message.trim())){
             pulses = pulses + Integer.parseInt(message.trim());
         }
+        Log.d("device_","1");
         money =(float) pulses *(float)  0.5;
         messagesData.postValue(Float.toString(round(money,2)));
     }
@@ -128,7 +130,7 @@ public class Activity1MainViewModel  extends AndroidViewModel {
 
     private void toast(@StringRes int messageResource) { Toast.makeText(getApplication(), messageResource, Toast.LENGTH_LONG).show(); }
     public LiveData<String> getMessages() { return messagesData; }
-    public LiveData<CommunicateViewModel.ConnectionStatus> getConnectionStatus() { return connectionStatusData; }
+    public LiveData<ConnectionStatus> getConnectionStatus() { return connectionStatusData; }
     public LiveData<String> getDeviceName() { return deviceNameData; }
     public LiveData<String> getMessage() { return messageData; }
     enum ConnectionStatus {

@@ -6,13 +6,8 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-//import android.support.annotation.NonNull;
-//import android.support.design.widget.BottomNavigationView;
-//import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -21,82 +16,56 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.curzar.androidkiosksample.database.SettingViewModel;
 import com.curzar.androidkiosksample.model.Setting;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class Activity1Main extends AppCompatActivity implements KioskInterface {
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
-    private TextView mTextMessage;
+//public class Activity1Main extends AppCompatActivity implements KioskInterface {
+public class Activity1Main extends AppCompatActivity {
+
+    private TextView mTextMessage,textView16,textView17;
     private Button btn_call_first_activity,kioskmodeButton,zeroButton,connectButton;
-    private EditText editTextNumber4;
+    private EditText editTextNumber4,editTextNumber5,editTextNumber6;
     private Activity1MainViewModel viewModel;
-    private SettingViewModel mSettingViewModel;
-    private String device_name = "";
-    private String device_mac = "";
+    //private SettingViewModel mSettingViewModel;
+    private String device_name = "ESP32test";
+    private String device_mac = "7C:9E:BD:F6:53:6A";
     private Setting setting;
+    //private DevicePolicyManager mDevicePolicyManager;
+    //private ActivityManager am;
 
-    private DevicePolicyManager mDevicePolicyManager;
-    private ActivityManager am;
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-
-        mSettingViewModel.getAllSettings().observe(this,settings ->{
-            for (Setting setting : settings){
-                switch (setting.getName()){
-                    case   "devicename":
-                        device_name =setting.getValue();
-                        break;
-                    case   "devicemac":
-                        device_mac =setting.getValue();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-
-       // Log.d("device_bl",device_name);
-       // Log.d("device_bl",device_mac);
-
-
-        if (!viewModel.setupViewModel(device_name,device_mac)) {
-            finish();
-            return;
-        }
-
-
-
-    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_1main);
         getSupportActionBar().hide();
-
-        viewModel = ViewModelProviders.of(this).get(Activity1MainViewModel.class);
-        mSettingViewModel = ViewModelProviders.of(this).get(SettingViewModel.class);
-
-        am                      = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        mDevicePolicyManager    = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        //mSettingViewModel       = ViewModelProviders.of(this).get(SettingViewModel.class);
+        //am                      = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //mDevicePolicyManager    = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         mTextMessage            = (TextView) findViewById(R.id.message);
         kioskmodeButton         = findViewById(R.id.btnkioskmode);
         zeroButton              = findViewById(R.id.communicate_zero);
-        connectButton              = findViewById(R.id.button);
+        connectButton           = findViewById(R.id.button);
+        editTextNumber4         = findViewById(R.id.editTextNumber4);
+        editTextNumber5         = findViewById(R.id.editTextNumber5);
+        editTextNumber6         = findViewById(R.id.editTextNumber6);
 
-        if(am.getLockTaskModeState() == ActivityManager.LOCK_TASK_MODE_NONE)
+
+        textView16            = (TextView) findViewById(R.id.textView16);
+        textView17            = (TextView) findViewById(R.id.textView17);
+
+
+
+        /*
+       if(am.getLockTaskModeState() == ActivityManager.LOCK_TASK_MODE_NONE)
         {
             kioskmodeButton.setText(R.string.button_txt_enable_kiosk);
         }
@@ -120,7 +89,7 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
                 }
             }
         });
-
+*/
         btn_call_first_activity=(Button) findViewById(R.id.btn_call_first_activity);
         btn_call_first_activity.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,59 +99,142 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
             }
         });
 
+        viewModel               = ViewModelProviders.of(this).get(Activity1MainViewModel.class);
+        // This method return false if there is an error, so if it does, we should close.
+        if (!viewModel.setupViewModel(device_name, device_mac)) {
+            finish();
+            return;
+        }
 
         viewModel.getConnectionStatus().observe(this, this::onConnectionStatus);
         viewModel.getDeviceName().observe(this, name -> setTitle(getString(R.string.device_name_format, name)));
         viewModel.getMessages().observe(this, message -> {
             if (TextUtils.isEmpty(message)) {
-                message = getString(R.string.no_messages);
+                message = "0";
+            }else{
+
+                float minutostotales =Float.parseFloat(message)*15 ;
+                float horas = minutostotales/60;
+                float horas_round = roundDown(horas,0);
+                float minutos = horas - horas_round ;// you have 0.6789
+                float minutos_round = roundDown(minutos*60,0);
+                if(horas_round == 0){
+                    textView16.setVisibility(View.INVISIBLE);
+                    editTextNumber5.setVisibility(View.INVISIBLE);
+                }else{
+                    textView16.setVisibility(View.VISIBLE);
+                    editTextNumber5.setVisibility(View.VISIBLE);
+                    editTextNumber5.setText(Integer.toString((int)horas_round));
+                }
+                if (minutos_round == 0) {
+                    textView17.setVisibility(View.INVISIBLE);
+                    editTextNumber6.setVisibility(View.INVISIBLE);
+                }else{
+                    textView17.setVisibility(View.VISIBLE);
+                    editTextNumber6.setVisibility(View.VISIBLE);
+                    editTextNumber6.setText(Integer.toString((int)minutos_round));
+
+                }
             }
-            // messagesView.setText(message);
+            editTextNumber4.setText(message);
+
+
         });
+        /*
         viewModel.getMessage().observe(this, message -> {
             if (TextUtils.isEmpty(message)) {
-                editTextNumber4.setText(message);
+                message = "0";
+            }else{
+                float minutostotales =Float.parseFloat(message)*15 ;
+                float horas = minutostotales/60;
+                float horas_round = round(horas,0);
+                float minutos = horas - horas_round ;// you have 0.6789
+                float minutos_round = round(minutos*60,0);
+                if(horas_round == 0){
+                    textView16.setVisibility(View.INVISIBLE);
+                    editTextNumber5.setVisibility(View.INVISIBLE);
+                }else{
+                    textView16.setVisibility(View.VISIBLE);
+                    editTextNumber5.setVisibility(View.VISIBLE);
+                    editTextNumber5.setText(Float.toString(horas));
+                }
+                if (minutos_round == 0) {
+                    textView17.setVisibility(View.INVISIBLE);
+                    editTextNumber6.setVisibility(View.INVISIBLE);
+                }else{
+                    textView17.setVisibility(View.VISIBLE);
+                    editTextNumber6.setVisibility(View.VISIBLE);
+                    editTextNumber6.setText(Float.toString(minutos_round));
+
+                }
             }
+            editTextNumber4.setText(message);
         });
+        */
 
     }
 
 
-    private void onConnectionStatus(CommunicateViewModel.ConnectionStatus connectionStatus) {
+   // @Override
+    //protected void onResume() {
+     //   super.onResume();
+       /* mSettingViewModel.getAllSettings().observe(this,settings ->{
+            for (Setting setting : settings){
+                switch (setting.getName()){
+                    case   "devicename":
+                        device_name =setting.getValue();
+                        break;
+                    case   "devicemac":
+                        device_mac =setting.getValue();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });*/
+        //if (!viewModel.setupViewModel(device_name,device_mac)) {
+         //   finish();
+         //   return;
+        //}
+   // }
+
+
+    private void onConnectionStatus(Activity1MainViewModel.ConnectionStatus connectionStatus) {
         switch (connectionStatus) {
             case CONNECTED:
                 //connectionText.setText(R.string.status_connected);
                 //messageBox.setEnabled(true);
                 //sendButton.setEnabled(true);
-                //connectButton.setEnabled(true);
-                //connectButton.setText(R.string.disconnect);
-                //connectButton.setOnClickListener(v -> viewModel.disconnect());
+                connectButton.setEnabled(true);
+                connectButton.setText(R.string.disconnect);
+                connectButton.setOnClickListener(v -> viewModel.disconnect());
                 break;
 
             case CONNECTING:
                 //connectionText.setText(R.string.status_connecting);
                 //messageBox.setEnabled(false);
                 //sendButton.setEnabled(false);
-                //connectButton.setEnabled(false);
-                //connectButton.setText(R.string.connect);
+                connectButton.setEnabled(false);
+                connectButton.setText(R.string.connect);
                 break;
 
             case DISCONNECTED:
                 //connectionText.setText(R.string.status_disconnected);
                 //messageBox.setEnabled(false);
                 //sendButton.setEnabled(false);
-                //connectButton.setEnabled(true);
-                //connectButton.setText(R.string.connect);
+                connectButton.setEnabled(true);
+                connectButton.setText(R.string.connect);
                 connectButton.setOnClickListener(v -> viewModel.connect());
                 break;
         }
     }
 
-    @Override
-    public void KioskSetupFinish() {
-        kioskmodeButton.setText("Disable Kiosk MODE");
-    }
+   // @Override
+    //public void KioskSetupFinish() {
+    //    kioskmodeButton.setText("Disable Kiosk MODE");
+    //}
 
+    /*
     public void askAdminPassword(){
         final Dialog dialog = new Dialog(Activity1Main.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -227,6 +279,7 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
 
     }
 
+
     private void disableKioskMode(DevicePolicyManager devicePolicyManager,ActivityManager activityManager)
     {
         if(devicePolicyManager!=null && activityManager!=null){
@@ -243,6 +296,7 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
         }
 
     }
+*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -261,8 +315,18 @@ public class Activity1Main extends AppCompatActivity implements KioskInterface {
     public void onBackPressed() {
         finish();
     }
-    
 
+
+    public static float round(float d, int decimalPlace) {
+        BigDecimal bd = new BigDecimal(Float.toString(d));
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        return bd.floatValue();
+    }
+
+    public static float roundDown(float d, int decimalPlace)
+    {
+        return BigDecimal.valueOf(d).setScale(decimalPlace, BigDecimal.ROUND_FLOOR).floatValue();
+    }
 }
 
  /* private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener

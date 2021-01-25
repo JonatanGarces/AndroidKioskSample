@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 public class
+
 MainActivity extends AppCompatActivity {
 
     private MainActivityViewModel viewModel;

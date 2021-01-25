@@ -2,7 +2,6 @@ package com.curzar.androidkiosksample;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,12 +29,8 @@ public class CommunicateActivity extends AppCompatActivity {
 
         // Setup our ViewModel
         viewModel = ViewModelProviders.of(this).get(CommunicateViewModel.class);
-
         // This method return false if there is an error, so if it does, we should close.
-
-
         if (!viewModel.setupViewModel(getIntent().getStringExtra("device_name"), getIntent().getStringExtra("device_mac"))) {
-
             finish();
             return;
         }
