@@ -28,6 +28,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 //public class Activity1Main extends AppCompatActivity implements KioskInterface {
 public class Activity1Main extends AppCompatActivity {
@@ -46,12 +47,17 @@ public class Activity1Main extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
-       Runnable task = new Runnable() {
-            public void run() {
-
+        ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+        Runnable task2 = () -> {
+            Log.d("laputaputa","noconnected");
+            if(!viewModel.isConnected && viewModel.viewModelSetup){
+                viewModel.connect();
+                Log.d("laputaputa","intent");
             }
         };
+
+// This schedule a runnable task every 2 minutes
+        scheduleTaskExecutor.scheduleAtFixedRate(task2, 1, 1, TimeUnit.MINUTES);
 
         setContentView(R.layout.activity_1main);
         getSupportActionBar().hide();
@@ -211,8 +217,6 @@ public class Activity1Main extends AppCompatActivity {
                 }
             }
             editTextNumber4.setText(message);
-
-
             connectButton.setVisibility(View.VISIBLE);
             connectButton.setEnabled(true);
         });

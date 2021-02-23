@@ -102,7 +102,7 @@ public class Activity1MainViewModel  extends AndroidViewModel {
     private void onConnected(SimpleBluetoothDeviceInterface deviceInterface) {
         this.deviceInterface = deviceInterface;
         if (this.deviceInterface != null) {
-            isConnected=false;
+            isConnected=true;
             connectionStatusData.postValue(ConnectionStatus.CONNECTED);
             this.deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, t -> toast(R.string.message_send_error));
             toast(R.string.connected);
