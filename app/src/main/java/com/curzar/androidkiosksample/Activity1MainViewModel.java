@@ -11,12 +11,15 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.curzar.androidkiosksample.database.SettingRepository;
+import com.curzar.androidkiosksample.model.Setting;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -33,16 +36,27 @@ public class Activity1MainViewModel  extends AndroidViewModel {
     private MutableLiveData<String> deviceNameData = new MutableLiveData<>();
     private MutableLiveData<String> messageData = new MutableLiveData<>();
     private StringBuilder messages = new StringBuilder();
+    public boolean isConnected =false;
     private int pulses=0;
     private float money=0;
     private String deviceName;
     private String mac;
     private boolean connectionAttemptedOrMade = false;
-    private boolean viewModelSetup = false;
+    public boolean viewModelSetup = false;
+
+    private SettingRepository mRepository;
+    private final LiveData<List<Setting>> mAllSettings;
+
 
     public Activity1MainViewModel(@NotNull Application application) {
         super(application);
+        mRepository = new SettingRepository(application);
+        mAllSettings =  mRepository.getAllSettings();
     }
+    public LiveData<List<Setting>> getAllSettings() {
+        return mAllSettings;
+    }
+
 
     public boolean setupViewModel(String deviceName, String mac) {
         if (!viewModelSetup) {
@@ -77,6 +91,7 @@ public class Activity1MainViewModel  extends AndroidViewModel {
 
     public void disconnect() {
         if (connectionAttemptedOrMade && deviceInterface != null) {
+            isConnected = false;
             connectionAttemptedOrMade = false;
             bluetoothManager.closeDevice(deviceInterface);
             deviceInterface = null;
@@ -87,6 +102,7 @@ public class Activity1MainViewModel  extends AndroidViewModel {
     private void onConnected(SimpleBluetoothDeviceInterface deviceInterface) {
         this.deviceInterface = deviceInterface;
         if (this.deviceInterface != null) {
+            isConnected=false;
             connectionStatusData.postValue(ConnectionStatus.CONNECTED);
             this.deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, t -> toast(R.string.message_send_error));
             toast(R.string.connected);

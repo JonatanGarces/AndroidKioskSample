@@ -14,7 +14,7 @@ public class SettingViewModel extends AndroidViewModel {
     private final LiveData<List<Setting>> mAllSettings;
 
     // private final Setting setting;
-//    public SettingViewModel(Application application, LiveData<com.curzar.androidkiosksample.model.Setting> setting){
+    //public SettingViewModel(Application application, LiveData<com.curzar.androidkiosksample.model.Setting> setting){
     public SettingViewModel(Application application){
        super(application);
        mRepository = new SettingRepository(application);
@@ -28,7 +28,7 @@ public class SettingViewModel extends AndroidViewModel {
     public LiveData<List<Setting>> getAllSettings() {
         return mAllSettings;
     }
-    void insert(Setting setting) {
+    public void insert(Setting setting) {
         mRepository.insert(setting);
     }
     public   void update(Setting setting) {

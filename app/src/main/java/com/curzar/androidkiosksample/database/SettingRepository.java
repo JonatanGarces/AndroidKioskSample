@@ -15,12 +15,13 @@ public class SettingRepository {
     private LiveData<List<Setting>> mAllSettings;
     private Setting setting;
 
-    SettingRepository(Application application){
+    public SettingRepository(Application application){
         SettingRoomDatabase db = SettingRoomDatabase.getDatabase(application);
         mSettingDao = db.settingDao();
-    }
-    LiveData<List<Setting>> getAllSettings() {
         mAllSettings = mSettingDao.getAlphabetizedSettings();
+
+    }
+    public LiveData<List<Setting>> getAllSettings() {
         return mAllSettings;
     }
     void insert(Setting setting) {
