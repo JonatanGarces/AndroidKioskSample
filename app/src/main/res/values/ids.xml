@@ -20,4 +20,5 @@
     <item name="txtinputlayout_characteristic" type="id" />
     <item name="txt_device" type="id" />
     <item name="txtinputlayout_device" type="id" />
+    <item name="toggle_device_admin_1" type="id"/>
 </resources>

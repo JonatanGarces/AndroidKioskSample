@@ -7,7 +7,7 @@
     <string name="button_txt_enable_kiosk">Enable Kiosk Mode</string>
     <string name="button_txt_disable_kiosk">Disable Kiosk Mode</string>
     <string name="titulo">Renta de Wifi</string>
-    <string name="titulo_descripcion">Acepta</string>
+    <string name="titulo_descripcion">Acepta:</string>
     <string name="hint_email">Correo Electronico</string>
 
 
@@ -48,6 +48,11 @@
         <item>MXN</item>
     </string-array>
 
+    <string name="enable_device_admin">Enable Device Admin</string>
+    <string name="lock_device">Lock Device</string>
+    <string name="reset_device">Reset Device</string>
+    <string name="device_admin_enabled">Device Admin Enabled</string>
+    <string name="device_admin_disabled">Device Admin Disabled</string>
 
     <string name="messages">Messages:</string>
     <string name="message">Message</string>
@@ -65,6 +70,11 @@
     <string name="bluetooth_unavailable">Connection Failed.</string>
     <string name="message_send_error">Error sending message!</string>
     <string name="you_sent">You</string>
+    <string name="admin_receiver_status_enabled">admin_receiver_status_enabled</string>
+    <string name="admin_receiver_status_disable_warning">admin_receiver_status_disable_warning</string>
+    <string name="admin_receiver_status_disabled">admin_receiver_status_disabled</string>
+    <string name="admin_receiver_status_pw_changed">admin_receiver_status_pw_changed</string>
+    <string name="admin_receiver_status">admin_receiver_status</string>
 
 
 </resources>

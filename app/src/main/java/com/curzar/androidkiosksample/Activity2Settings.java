@@ -1,13 +1,31 @@
 package com.curzar.androidkiosksample;
 
+
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.Dialog;
+import android.app.admin.DevicePolicyManager;
+import android.app.admin.SystemUpdatePolicy;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Bundle;
+import android.os.UserManager;
+import android.provider.Settings;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,9 +37,8 @@ import androidx.lifecycle.ViewModelProvider;
 import java.util.List;
 import java.util.Map;
 
-public class Activity2Settings extends AppCompatActivity {
+public class Activity2Settings extends AppCompatActivity implements KioskInterface{
     public static final String EXTRA_REPLY = "com.curzar.androidkiosksample.wordlistsql.REPLY";
-    private EditText mEditSettingView;
     private EditText  txtemail;
     private EditText  txtpassword;
     private Spinner  spincurrency;
@@ -31,31 +48,28 @@ public class Activity2Settings extends AppCompatActivity {
     private TextView txtviewcurrency;
     private EditText  txttimeperunitofcurrency;
     private Button btnSaveSettings;
-    private Button btn_call_second_activity;
+    private Button btn_call_second_activity,button3;
+
+    private ToggleButton toggleButton;
+    private DevicePolicyManager mDevicePolicyManager;
+    private ActivityManager am;
+
     List<Setting> settings1 = null;
-    public static final int NEW_WORD_ACTIVITY_REQUEST_CODE = 1;
     private SettingViewModel mSettingViewModel;
-    Map<String, String> inputs;
 
-    /*public void onActivityResult(int requestCode,int resultCode,Intent data){
-        super.onActivityResult(requestCode,resultCode,data);
-        if(requestCode == NEW_WORD_ACTIVITY_REQUEST_CODE && resultCode ==RESULT_OK){
-            Setting setting = new Setting(data.getStringExtra(Activity2Settings.EXTRA_REPLAY));
-            mSettingViewModel.update(setting);
-        }else{
-            Toast.makeText(
-                    getApplicationContext(),
-                    "No se guardo",
-                    Toast.LENGTH_LONG).show();
-        }
+
+    @Override
+    public void KioskSetupFinish() {
+        button3.setText("Disable Kiosk MODE");
     }
-
-     */
-
     @Override
     public  void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_2settings);
+
+        toggleButton = (ToggleButton)findViewById(R.id.toggle_device_admin_1);
+        button3 = (Button) findViewById(R.id.button3);
+
         btn_call_second_activity = (Button) findViewById(R.id.btn_call_second_activity);
         btnSaveSettings = (Button) findViewById(R.id.btnSaveSettings);
         txtemail=(EditText ) findViewById(R.id.txtemail);
@@ -66,10 +80,7 @@ public class Activity2Settings extends AppCompatActivity {
         txtdevice=(EditText) findViewById(R.id.txt_device);
         txtservice=(EditText) findViewById(R.id.txt_service);
         txtviewcurrency= (TextView) findViewById(R.id.txtviewcurrency);
-
         mSettingViewModel= new ViewModelProvider(this).get(SettingViewModel.class);
-        //mSettingViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(SettingViewModel.class);
-
         Spinner spinner = (Spinner) findViewById(R.id.spincurrency);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.currency_array, android.R.layout.simple_spinner_item);
@@ -77,7 +88,6 @@ public class Activity2Settings extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
-
 
         mSettingViewModel.getAllSettings().observe(this,settings ->{
             settings1 = settings;
@@ -113,17 +123,10 @@ public class Activity2Settings extends AppCompatActivity {
                 }
 
         });
-        // Create an ArrayAdapter using the string array and a default spinner layout
-
-        //DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-        //devicePolicyManager.clearDeviceOwnerApp(this.getPackageName());
 
         btnSaveSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-
                 mSettingViewModel.updateByName("email",txtemail.getText().toString());
                 mSettingViewModel.updateByName("password",txtpassword.getText().toString());
                 mSettingViewModel.updateByName("currency",spinner.getSelectedItem().toString());
@@ -131,7 +134,6 @@ public class Activity2Settings extends AppCompatActivity {
                 mSettingViewModel.updateByName("characteristic",txtcharacteristic.getText().toString());
                 mSettingViewModel.updateByName("service",txtservice.getText().toString());
                 mSettingViewModel.updateByName("timeperunitofcurrency",txttimeperunitofcurrency.getText().toString());
-
 
                 // Intent replyIntent = new Intent();
                // if (TextUtils.isEmpty(txtminpertypeofchange.getText())) {
@@ -152,7 +154,113 @@ public class Activity2Settings extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
+        toggleButton.setOnClickListener( new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+
+            }
+        });
+
+
+
+
+        am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+
+
+        if(am.getLockTaskModeState() == ActivityManager.LOCK_TASK_MODE_NONE)
+        {
+            button3.setText(R.string.button_txt_enable_kiosk);
+        }
+        else
+        {
+            button3.setText(R.string.button_txt_disable_kiosk);
+        }
+
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(am.getLockTaskModeState() != ActivityManager.LOCK_TASK_MODE_NONE)
+                {
+                    askAdminPassword();
+                }
+                else
+                {
+                    CheckKioskModeDialog dialog=new CheckKioskModeDialog();
+                    dialog.show(getFragmentManager(),"KIOSK_MODE_DIALOG");
+                }
+
+            }
+        });
+
+
     }
+
+
+
+    public void askAdminPassword(){
+        final Dialog dialog = new Dialog(Activity2Settings.this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setContentView(R.layout.dialog_ask_admin_password);
+
+        final EditText et_admin_password=(EditText) dialog.findViewById(R.id.et_admin_password);
+        Button btn_proceed=(Button) dialog.findViewById(R.id.btn_proceed);
+        Button btn_exit=(Button) dialog.findViewById(R.id.btn_exit);
+
+        btn_proceed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                if(!TextUtils.isEmpty(et_admin_password.getText()))
+                {
+                    if(getResources().getString(R.string.device_admin_password).equalsIgnoreCase(et_admin_password.getText().toString()))
+                    {
+
+                        disableKioskMode(mDevicePolicyManager,am);
+                        dialog.dismiss();
+                    }
+                    else
+                    {
+                        Toast.makeText(Activity2Settings.this, "Please enter valid password.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+
+            }
+        });
+
+        btn_exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    private void disableKioskMode(DevicePolicyManager devicePolicyManager,ActivityManager activityManager)
+    {
+        if(devicePolicyManager!=null && activityManager!=null){
+            ComponentName mAdminComponentName = DeviceAdminReceiver.getComponentName(Activity2Settings.this);
+            devicePolicyManager.clearPackagePersistentPreferredActivities(mAdminComponentName, getPackageName());
+            devicePolicyManager.clearDeviceOwnerApp(getApplication().getPackageName());
+            if(activityManager.getLockTaskModeState()!=ActivityManager.LOCK_TASK_MODE_NONE)
+            {
+                this.stopLockTask();
+                button3.setText(R.string.button_txt_enable_kiosk);
+            }
+        }
+    }
+
+
+
+
+
 
 
 

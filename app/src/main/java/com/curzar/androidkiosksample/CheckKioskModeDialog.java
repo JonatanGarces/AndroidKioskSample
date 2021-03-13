@@ -15,16 +15,14 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-
-
-/**
- * Created by A695905 on 26-04-2018.
- */
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 
 public class CheckKioskModeDialog extends DialogFragment
@@ -47,7 +45,7 @@ public class CheckKioskModeDialog extends DialogFragment
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
 
-        btnStartKioskMode= (Button) dialog.findViewById(R.id.start_kioskmode);//R.id.start_kioskmode
+        btnStartKioskMode= (Button) dialog.findViewById(R.id.start_kioskmode);
         btn_cancel=(Button)dialog.findViewById(R.id.btn_cancel);
         btn_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,6 +129,9 @@ public class CheckKioskModeDialog extends DialogFragment
         // enable STAY_ON_WHILE_PLUGGED_IN
         enableStayOnWhilePluggedIn(active);
 
+
+        setSystemUIEnabled(active);
+
         // set system update policy
         if (active){
             mDevicePolicyManager.setSystemUpdatePolicy(mAdminComponentName,
@@ -194,6 +195,20 @@ public class CheckKioskModeDialog extends DialogFragment
                     Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
                     "0"
             );
+        }
+    }
+
+
+    public void setSystemUIEnabled(boolean enabled){
+        try {
+            Process p = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(p.getOutputStream());
+            os.writeBytes("pm " + (enabled ? "disable" : "enable")
+                    + " com.android.systemui\n");
+            os.writeBytes("exit\n");
+            os.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
