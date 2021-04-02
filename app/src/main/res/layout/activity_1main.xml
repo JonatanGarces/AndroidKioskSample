@@ -305,12 +305,13 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 >
 
+
+
                 <EditText
                     android:id="@+id/editTextNumber5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
-
                     android:ems="2"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
@@ -321,6 +322,7 @@
                     android:textStyle="bold"
                     android:visibility="visible"
                     app:layout_constraintEnd_toStartOf="@+id/textView16"
+
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 

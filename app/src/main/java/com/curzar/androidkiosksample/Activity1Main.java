@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -38,104 +39,63 @@ import retrofit2.Response;
 //public class Activity1Main extends AppCompatActivity implements KioskInterface {
 public class Activity1Main extends AppCompatActivity {
     public static String PACKAGE_NAME;
-
-    private TextView mTextMessage,textView16,textView17;
-    private Button btn_call_first_activity,kioskmodeButton,zeroButton,connectButton;
+    private Button btn_call_first_activity,connectButton;
     private EditText editTextNumber3,editTextNumber4,editTextNumber5,editTextNumber6;
     private ImageView cross_check;
-
     private Activity1MainViewModel viewModel;
-    //private SettingViewModel mSettingViewModel;
     private int segundos = 0;
     private double dinero = 0;
     private String device_name = "";
     private String device_mac = "";
     private String timeperunitofcurrency = "";
-    private Setting setting;
-    //private DevicePolicyManager mDevicePolicyManager;
-   // private ActivityManager am;
+    private String txtMoneda = "";
+    private String txtHora = "";
+    private String txtMinuto = "";
+    boolean buttonVisible = false;
     ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+    private long lastClickTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ScheduledExecutorService scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
         Runnable task2 = () -> {
-           // Log.d("laputaputa","noconnected");
             if(!viewModel.isConnected && viewModel.viewModelSetup){
                 viewModel.connect();
-                Log.d("laputaputa","intent");
             }
         };
         PACKAGE_NAME = getApplicationContext().getPackageName();
-
-        // This schedule a runnable task every 2 minutes
-        scheduleTaskExecutor.scheduleAtFixedRate(task2, 1, 1, TimeUnit.MINUTES);
+        scheduleTaskExecutor.scheduleAtFixedRate(task2, 20, 20, TimeUnit.SECONDS);
         setContentView(R.layout.activity_1main);
         getSupportActionBar().hide();
-        //mSettingViewModel       = ViewModelProviders.of(this).get(SettingViewModel.class);
-        //am                      = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        //mDevicePolicyManager    = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-        mTextMessage            = (TextView) findViewById(R.id.message);
-        kioskmodeButton         = findViewById(R.id.btnkioskmode);
-        zeroButton              = findViewById(R.id.communicate_zero);
         connectButton           = findViewById(R.id.button);
         editTextNumber3         = findViewById(R.id.editTextNumber3);
         editTextNumber4         = findViewById(R.id.editTextNumber4);
         editTextNumber5         = findViewById(R.id.editTextNumber5);
         editTextNumber6         = findViewById(R.id.editTextNumber6);
-        textView16              = (TextView) findViewById(R.id.textView16);
-        textView17              = (TextView) findViewById(R.id.textView17);
-
-
         cross_check = (ImageView)findViewById(R.id.imageView2);
-
         cross_check.setImageResource(R.drawable.cross);
-
-
         viewModel               =new  ViewModelProvider(this).get(Activity1MainViewModel.class);
         connectButton.setVisibility(View.INVISIBLE);
-        connectButton.setEnabled(true);
-
+        connectButton.setEnabled(false);
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                 ApiCall();
+                if (SystemClock.elapsedRealtime() - lastClickTime < 3000) {
+                    return;
+                }
+                lastClickTime = SystemClock.elapsedRealtime();
+
+                ApiCall();
+
             }
         });
 
-        /*
-       if(am.getLockTaskModeState() == ActivityManager.LOCK_TASK_MODE_NONE)
-        {
-            kioskmodeButton.setText(R.string.button_txt_enable_kiosk);
-        }
-        else
-        {
-            kioskmodeButton.setText(R.string.button_txt_disable_kiosk);
-        }
-
-        kioskmodeButtonkioskmodeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                if(am.getLockTaskModeState() != ActivityManager.LOCK_TASK_MODE_NONE)
-                {
-                    askAdminPassword();
-                }
-                else
-                {
-                    CheckKioskModeDialog dialog=new CheckKioskModeDialog();
-                    dialog.show(getFragmentManager(),"KIOSK_MODE_DIALOG");
-                }
-            }
-        });
-*/
         btn_call_first_activity=(Button) findViewById(R.id.btn_call_first_activity);
         btn_call_first_activity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(Activity1Main.this, Activity2Settings.class);
-                startActivity(intent);
+                askAdminPassword();
             }
         });
         viewModel.getAllSettings().observe(this,settings -> {
@@ -157,105 +117,9 @@ public class Activity1Main extends AppCompatActivity {
                     }
                     callViewModelBl();
                 });
-
     }
 
 
-    @Override
-    protected void onResume() {
-       super.onResume();
-       if(!viewModel.isConnected && viewModel.viewModelSetup){
-           viewModel.connect();
-       }
-    }
-    private void callViewModelBl(){
-        if (!viewModel.setupViewModel(device_name, device_mac)) {
-            finish();
-            return;
-        }
-        viewModel.getConnectionStatus().observe(this, this::onConnectionStatus);
-        viewModel.getDeviceName().observe(this, name -> setTitle(getString(R.string.device_name_format, name)));
-        viewModel.getMessages().observe(this, message -> {
-            if (TextUtils.isEmpty(message)) {
-                message = "0";
-            }else{
-                float minutostotales =Float.parseFloat(message)*Float.parseFloat(timeperunitofcurrency) ;
-                segundos = (int)minutostotales*60;
-                float horas = minutostotales/60;
-                float horas_round = roundDown(horas,0);
-                float minutos = horas - horas_round ;// you have 0.6789
-                float minutos_round = roundDown(minutos*60,0);
-                if(horas_round == 0){
-                    //textView16.setVisibility(View.INVISIBLE);
-                    //editTextNumber5.setVisibility(View.INVISIBLE);
-                    editTextNumber5.setText("00");
-                }else{
-                    textView16.setVisibility(View.VISIBLE);
-                    editTextNumber5.setVisibility(View.VISIBLE);
-
-                    editTextNumber5.setText(String.format("%02d", (int)horas_round));
-                }
-                if (minutos_round == 0) {
-                    //textView17.setVisibility(View.INVISIBLE);
-                    //editTextNumber6.setVisibility(View.INVISIBLE);
-                    editTextNumber6.setText("00");
-                }else{
-                    //textView17.setVisibility(View.VISIBLE);
-                    editTextNumber6.setVisibility(View.VISIBLE);
-                    editTextNumber6.setText(Integer.toString((int)minutos_round));
-                }
-                connectButton.setVisibility(View.VISIBLE);
-                connectButton.setEnabled(true);
-            }
-            editTextNumber4.setText(message);
-        });
-        viewModel.connect();
-    }
-
-    private void onConnectionStatus(Activity1MainViewModel.ConnectionStatus connectionStatus) {
-        switch (connectionStatus) {
-            case CONNECTED:
-
-                cross_check.setImageResource(R.drawable.check);
-
-                //connectionText.setText(R.string.status_connected);
-                //messageBox.setEnabled(true);
-                //sendButton.setEnabled(true);
-                //connectButton.setEnabled(true);
-                //connectButton.setText(R.string.disconnect);
-                //connectButton.setOnClickListener(v -> viewModel.disconnect());
-                break;
-
-            case CONNECTING:
-
-                cross_check.setImageResource(R.drawable.connecting);
-
-                //connectionText.setText(R.string.status_connecting);
-                //messageBox.setEnabled(false);
-                //sendButton.setEnabled(false);
-                //connectButton.setEnabled(false);
-                //connectButton.setText(R.string.connect);
-                break;
-
-            case DISCONNECTED:
-
-                cross_check.setImageResource(R.drawable.cross);
-
-                //connectionText.setText(R.string.status_disconnected);
-                //messageBox.setEnabled(false);
-                //sendButton.setEnabled(false);
-                //connectButton.setEnabled(true);
-                //connectButton.setText(R.string.connect);
-                //connectButton.setOnClickListener(v -> viewModel.connect());
-                break;
-        }
-    }
-
-   // @Override
-    //public void KioskSetupFinish() {
-    //    kioskmodeButton.setText("Disable Kiosk MODE");
-    //}
-    /*
     public void askAdminPassword(){
         final Dialog dialog = new Dialog(Activity1Main.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -273,7 +137,8 @@ public class Activity1Main extends AppCompatActivity {
                 {
                     if(getResources().getString(R.string.device_admin_password).equalsIgnoreCase(et_admin_password.getText().toString()))
                     {
-                        disableKioskMode(mDevicePolicyManager,am);
+                        Intent intent=new Intent(Activity1Main.this, Activity2Settings.class);
+                        startActivity(intent);
                         dialog.dismiss();
                     }
                     else
@@ -283,6 +148,7 @@ public class Activity1Main extends AppCompatActivity {
                 }
             }
         });
+
         btn_exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -293,35 +159,94 @@ public class Activity1Main extends AppCompatActivity {
     }
 
 
-    private void disableKioskMode(DevicePolicyManager devicePolicyManager,ActivityManager activityManager)
-    {
-        if(devicePolicyManager!=null && activityManager!=null){
-            ComponentName mAdminComponentName = DeviceAdminReceiver.getComponentName(Activity1Main.this);
-            devicePolicyManager.clearPackagePersistentPreferredActivities(mAdminComponentName, getPackageName());
-            devicePolicyManager.clearDeviceOwnerApp(getApplication().getPackageName());
-            if(activityManager.getLockTaskModeState()!=ActivityManager.LOCK_TASK_MODE_NONE)
-            {
-                this.stopLockTask();
-                kioskmodeButton.setText(R.string.button_txt_enable_kiosk);
-            }
+    @Override
+    protected void onResume() {
+       super.onResume();
+       if(!viewModel.isConnected && viewModel.viewModelSetup){
+           viewModel.connect();
+       }
+
+        variablesView("0","0","0",false);
+
+    }
+
+    public void variablesView(String moneda, String horas, String minutos,Boolean visible){
+        editTextNumber4.setText(moneda);
+        editTextNumber5.setText(horas);
+        editTextNumber6.setText(minutos);
+        if(visible) {
+            connectButton.setEnabled(true);
+            connectButton.setVisibility(View.VISIBLE);
+        }else{
+            connectButton.setEnabled(false);
+            connectButton.setVisibility(View.INVISIBLE);
         }
     }
-*/
 
+    private void callViewModelBl(){
+        if (!viewModel.setupViewModel(device_name, device_mac)) {
+            finish();
+            return;
+        }
+        viewModel.getConnectionStatus().observe(this, this::onConnectionStatus);
+        viewModel.getDeviceName().observe(this, name -> setTitle(getString(R.string.device_name_format, name)));
+        viewModel.getMessages().observe(this, message -> {
+            if (TextUtils.isEmpty(message)) {
+                txtMoneda = "0";
+                buttonVisible = false;
+                txtHora = "00";
+                txtMinuto = "00";
+            }else{
+                txtMoneda = message;
+                float minutostotales =Float.parseFloat(message)*Float.parseFloat(timeperunitofcurrency) ;
+                segundos = (int)minutostotales*60;
+                float horas = minutostotales/60;
+                float horas_round = roundDown(horas,0);
+                float minutos = horas - horas_round ;// you have 0.6789
+                float minutos_round = roundDown(minutos*60,0);
+                buttonVisible= true;
+                if(horas_round == 0){
+                    txtHora = "00";
+                }else{
+                    txtHora = String.format("%02d", (int)horas_round);
+                }
+                if (minutos_round == 0) {
+                    txtMinuto = "00";
+                }else{
+                    txtMinuto =String.format("%02d", (int)minutos_round);
+                }
+            }
+            variablesView(txtMoneda,txtHora,txtMinuto,buttonVisible);
+        });
+        viewModel.connect();
+    }
+
+    private void onConnectionStatus(Activity1MainViewModel.ConnectionStatus connectionStatus) {
+        switch (connectionStatus) {
+            case CONNECTED:
+                cross_check.setImageResource(R.drawable.check);
+                break;
+            case CONNECTING:
+                cross_check.setImageResource(R.drawable.connecting);
+                break;
+            case DISCONNECTED:
+                cross_check.setImageResource(R.drawable.cross);
+                break;
+        }
+    }
     public void ApiCall(){
         ApiUser user = new ApiUser(0,segundos,"MXN","1","","",dinero);
         Call<ApiUser> call1 = apiInterface.createUser(user);
         call1.enqueue(new Callback<ApiUser>() {
             @Override
             public void onResponse(Call<ApiUser> call, Response<ApiUser> response) {
+                viewModel.Zero();
                 ApiUser user1 = response.body();
                 Intent intent = new Intent(getBaseContext(), Activity21Credentials.class);
                 intent.putExtra("username", user1.username);
                 intent.putExtra("password", user1.password);
                 intent.putExtra("ssid", "Renta_de_Wifi");
                 startActivity(intent);
-                //Toast.makeText(getApplicationContext(), user1.username + " " + user1.password + " " + user1.id + " " , Toast.LENGTH_SHORT).show();
-                //Log.d("laputaputa",user1.username + " " + user1.password + " " + user1.id + " ");
             }
             @Override
             public void onFailure(Call<ApiUser> call, Throwable t) {
@@ -340,16 +265,9 @@ public class Activity1Main extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
     @Override
     public void onBackPressed() {
         finish();
-    }
-
-    public static float round(float d, int decimalPlace) {
-        BigDecimal bd = new BigDecimal(Float.toString(d));
-        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
-        return bd.floatValue();
     }
 
     public static float roundDown(float d, int decimalPlace)
@@ -357,22 +275,3 @@ public class Activity1Main extends AppCompatActivity {
         return BigDecimal.valueOf(d).setScale(decimalPlace, BigDecimal.ROUND_FLOOR).floatValue();
     }
 }
-
- /* private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
-                    return true;
-                case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
-            }
-            return false;
-        }
-    };*/

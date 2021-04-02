@@ -104,29 +104,34 @@ public class Activity1MainViewModel  extends AndroidViewModel {
         if (this.deviceInterface != null) {
             isConnected=true;
             connectionStatusData.postValue(ConnectionStatus.CONNECTED);
-            this.deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, t -> toast(R.string.message_send_error));
+            this.deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent,this::onErrorListener );
             toast(R.string.connected);
             messages = new StringBuilder();
-            messagesData.postValue(messages.toString());
+            //messagesData.postValue(messages.toString());
         } else {
             toast(R.string.connection_failed);
             connectionStatusData.postValue(ConnectionStatus.DISCONNECTED);
         }
     }
 
+    private void onErrorListener(Throwable throwable) {
+        toast(R.string.message_send_error);
+        disconnect();
+    }
+
     private void onMessageReceived(String message) {
         if(isInt(message.trim())){
             pulses = pulses + Integer.parseInt(message.trim());
         }
-        Log.d("device_","1");
-        money =(float) pulses *(float)  0.5;
+
+        money =(float) pulses * (float)  0.5;
         messagesData.postValue(Float.toString(round(money,2)));
     }
 
     private void onMessageSent(String message) {
-        messages.append(getApplication().getString(R.string.you_sent)).append(": ").append(message).append('\n');
-        messagesData.postValue(messages.toString());
-        messageData.postValue("");
+      //  messages.append(getApplication().getString(R.string.you_sent)).append(": ").append(message).append('\n');
+       // messagesData.postValue(messages.toString());
+        //messageData.postValue("");
     }
     public void sendMessage(String message) {
         if (deviceInterface != null && !TextUtils.isEmpty(message)) {
@@ -136,6 +141,8 @@ public class Activity1MainViewModel  extends AndroidViewModel {
 
     public void Zero() {
         pulses = 0 ;
+        messages = new StringBuilder();
+
     }
 
     @Override

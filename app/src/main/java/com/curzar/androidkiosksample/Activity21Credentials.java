@@ -52,10 +52,13 @@ public class Activity21Credentials extends AppCompatActivity {
         txtpassword.setText(password);
         txtssid.setText(ssid);
 
-        qrImage = (ImageView) findViewById(R.id.QR_Image);
+        //qrImage = (ImageView) findViewById(R.id.QR_Image);
 
+        //inputValue ="WIFI:T:WPA2-EAP;S:"+ssid+";E:"+eap+";PH2:"+ph+";A:"+username+";I:"+username+";P:"+password+";;";
+        inputValue ="WIFI:T:WPA2-EAP;S:"+ssid+";E:"+eap+";PH2:"+ph+";I:"+username+";P:"+password+";;";
 
-        inputValue ="WIFI:T:WPA2-EAP;S:"+username+";E:"+eap+";PH2:"+ph+";A:"+username+";I:"+username+";P:"+password+";;";
+        //inputValue ="WIFI:T:WPA2-EAP;S:"+username+";E:"+eap+";PH2:"+ph+";I:"+username+";P:"+password+";;";
+      /*
         if (inputValue.length() > 0) {
             WindowManager manager = (WindowManager) getSystemService(WINDOW_SERVICE);
             Display display = manager.getDefaultDisplay();
@@ -75,10 +78,7 @@ public class Activity21Credentials extends AppCompatActivity {
         } else {
 
         }
-
-
-
-
+*/
 
 
 
