@@ -1,6 +1,8 @@
 package com.curzar.androidkiosksample;
 
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
@@ -160,7 +162,7 @@ public class Activity2Settings extends AppCompatActivity implements KioskInterfa
             @Override
             public void onClick(View v) {
 
-
+                checkDeviceOwnership();
             }
         });
 
@@ -199,6 +201,35 @@ public class Activity2Settings extends AppCompatActivity implements KioskInterfa
 
     }
 
+
+    public void checkDeviceOwnership() {
+        ComponentName mAdminComponentName = DeviceAdminReceiver.getComponentName(Activity2Settings.this);
+
+        // find out if we are the device owner
+        if(!mDevicePolicyManager.isDeviceOwnerApp(BuildConfig.APPLICATION_ID)) {
+            // find out if we can become the device owner
+            final Account[] accounts = AccountManager.get(this).getAccounts();
+
+            if(accounts.length == 0) {
+                // find out if we are a device administrator
+                if(mDevicePolicyManager.isAdminActive(mAdminComponentName)) {
+                    // become the device owner
+                    RunDpmDialog.show(this);
+                }
+                else {
+                    // become a device administrator
+                    final Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                    intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mAdminComponentName);
+                    intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, getString(R.string.grant_admin));
+                    startActivity(intent);
+                }
+            }
+            else {
+                // inform the user that we cannot become the device owner
+                //AccountExistsDialog.show(this);
+            }
+        }
+    }
 
 
     public void askAdminPassword(){
@@ -248,7 +279,7 @@ public class Activity2Settings extends AppCompatActivity implements KioskInterfa
         if(devicePolicyManager!=null && activityManager!=null){
             ComponentName mAdminComponentName = DeviceAdminReceiver.getComponentName(Activity2Settings.this);
             devicePolicyManager.clearPackagePersistentPreferredActivities(mAdminComponentName, getPackageName());
-            devicePolicyManager.clearDeviceOwnerApp(getApplication().getPackageName());
+            //devicePolicyManager.clearDeviceOwnerApp(getApplication().getPackageName());
             if(activityManager.getLockTaskModeState()!=ActivityManager.LOCK_TASK_MODE_NONE)
             {
                 this.stopLockTask();

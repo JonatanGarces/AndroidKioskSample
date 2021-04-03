@@ -1,5 +1,7 @@
 package com.curzar.androidkiosksample;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -102,6 +104,10 @@ public class CheckKioskModeDialog extends DialogFragment
             dismiss();
         }
     }
+
+
+
+
 
     public void setupUserPolicy(){
         if(mDevicePolicyManager.isDeviceOwnerApp(getActivity().getPackageName())){

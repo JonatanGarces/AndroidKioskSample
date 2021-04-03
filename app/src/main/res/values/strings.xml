@@ -11,6 +11,11 @@
     <string name="hint_email">Correo Electronico</string>
 
 
+    <string name="run_dpm">Run this command to make this app the device owner:\n{COMMAND}</string>
+    <string name="dpm_success">OK, dpm reported success</string>
+    <string name="quit">Quit</string>
+    <string name="grant_admin">This app must be a device administrator before it can become the device owner.</string>
+
     <string name="ble_not_supported">BLE is not supported</string>
     <string name="label_data">Data:</string>
     <string name="label_device_address">Device address:</string>
